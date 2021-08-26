@@ -1,11 +1,13 @@
-import React from "react";
+import React, { VFC } from "react";
+import { BrowserRouter } from "react-router-dom";
+import { Router } from "./router/Router";
 
-function App() {
+const App: VFC = () => {
   return (
-    <div>
-      <h1>hello world</h1>
-    </div>
+    <BrowserRouter>
+      <Router />
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
