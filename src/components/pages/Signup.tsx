@@ -5,57 +5,24 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
-import { makeStyles } from "@material-ui/core";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-
-import { db } from "../../firebase";
 import { useHistory } from "react-router-dom";
 
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    marginTop: theme.spacing(8),
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: "100%",
-    marginTop: theme.spacing(3),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}));
-
-//入力フィールドの型定義
-type InputFields = {
-  userName: string;
-  email: string;
-  password: string;
-};
-
-//バリデーションの設定
-const schema = yup.object().shape({
-  userName: yup.string().required(),
-  email: yup.string().email().required(),
-  password: yup.string().min(4).max(20).required(),
-});
+import { db } from "../../firebase";
+import { FormStyles } from "../../styles/LoginAndSignup";
+import { signupSchema } from "../../validators/Signup";
+import { InputFields } from "../../types/Signup";
 
 export const Signup: VFC = () => {
-  const classes = useStyles();
+  const classes = FormStyles();
   const history = useHistory();
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = useForm<InputFields>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(signupSchema),
   });
 
   //fireStoreへのユーザー新規登録処理
