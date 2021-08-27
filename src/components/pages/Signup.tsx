@@ -10,12 +10,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useHistory } from "react-router-dom";
 
 import { db } from "../../firebase";
-import { FormStyles } from "../../styles/LoginAndSignup";
+import { formStyles } from "../../styles/LoginAndSignup";
 import { signupSchema } from "../../validators/Signup";
 import { InputFields } from "../../types/Signup";
 
 export const Signup: VFC = () => {
-  const classes = FormStyles();
+  const classes = formStyles();
   const history = useHistory();
   const {
     handleSubmit,
