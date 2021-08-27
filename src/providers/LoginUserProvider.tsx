@@ -6,6 +6,9 @@ import React, {
   useState,
   VFC,
 } from "react";
+import { useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import { auth } from "../firebase";
 
 type User = {
   userId: string;
@@ -24,6 +27,10 @@ export const LoginUserProvider: VFC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [loginUser, setLoginUser] = useState<User | null>(null);
+  // const history = useHistory();
+  // useEffect(() => {
+  //   auth.onAuthStateChanged((user) => {});
+  // }, []);
   return (
     <LoginUserContext.Provider value={{ loginUser, setLoginUser }}>
       {children}

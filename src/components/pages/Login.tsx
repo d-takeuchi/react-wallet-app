@@ -12,16 +12,11 @@ import { LoginSchema } from "../../validators/LoginAndSignup";
 import { FormStyle } from "../../styles/Form";
 import { auth } from "../../firebase";
 import { SubmitHandler } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { InputFields } from "../../types/Signup";
 
-//入力フィールドの型定義
-type InputFields = {
-  email: string;
-  password: string;
-};
-
-export const Login: VFC = (props: any) => {
-  const { history } = props;
+export const Login: VFC = () => {
+  const history = useHistory();
   const classes = FormStyle();
   const {
     handleSubmit,

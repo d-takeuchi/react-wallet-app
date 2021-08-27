@@ -9,19 +9,13 @@ import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { auth, db } from "../../firebase";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { FormStyle } from "../../styles/Form";
 import { SignupSchema } from "../../validators/LoginAndSignup";
+import { InputFields } from "../../types/Signup";
 
-//入力フィールドの型定義
-type InputFields = {
-  userName: string;
-  email: string;
-  password: string;
-};
-
-export const Signup: VFC = (props: any) => {
-  const { history } = props;
+export const Signup: VFC = () => {
+  const history = useHistory();
   const classes = FormStyle();
   const {
     handleSubmit,
@@ -48,7 +42,7 @@ export const Signup: VFC = (props: any) => {
         const createdUserId = createdUser.uid;
         //Firestoreに↑で取得したuidを持ったユーザー情報を登録
         await db.collection("users").add({ ...newUser, userId: createdUserId });
-        history.push("/login");
+        history.push("/");
       }
     } catch (error) {
       alert(error.message);
@@ -129,7 +123,7 @@ export const Signup: VFC = (props: any) => {
             新規登録
           </Button>
           <Typography>
-            <Link to="/login">ログインはこちらから</Link>
+            <Link to="/">ログインはこちらから</Link>
           </Typography>
         </form>
       </div>
