@@ -5,33 +5,13 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
-import { makeStyles } from "@material-ui/core";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 
-import { db } from "../../firebase";
-import { useHistory } from "react-router-dom";
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    marginTop: theme.spacing(8),
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: "100%",
-    marginTop: theme.spacing(3),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}));
+import { auth, db } from "../../firebase";
+import { Link } from "react-router-dom";
+import { FormStyle } from "../../styles/Form";
+import { SignupSchema } from "../../validators/LoginAndSignup";
 
 //入力フィールドの型定義
 type InputFields = {
@@ -40,22 +20,15 @@ type InputFields = {
   password: string;
 };
 
-//バリデーションの設定
-const schema = yup.object().shape({
-  userName: yup.string().required(),
-  email: yup.string().email().required(),
-  password: yup.string().min(4).max(20).required(),
-});
-
-export const Signup: VFC = () => {
-  const classes = useStyles();
-  const history = useHistory();
+export const Signup: VFC = (props: any) => {
+  const { history } = props;
+  const classes = FormStyle();
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = useForm<InputFields>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(SignupSchema),
   });
 
   //fireStoreへのユーザー新規登録処理
@@ -63,8 +36,20 @@ export const Signup: VFC = () => {
     newUser: InputFields
   ) => {
     try {
-      await db.collection("users").add(newUser);
-      history.push("/userList");
+      //まずは、Authenticationにユーザー登録
+      const result = await auth.createUserWithEmailAndPassword(
+        newUser.email,
+        newUser.password
+      );
+
+      //Authenticationに登録されたユーザーのユーザーUIDを取得
+      const createdUser = result.user;
+      if (createdUser) {
+        const createdUserId = createdUser.uid;
+        //Firestoreに↑で取得したuidを持ったユーザー情報を登録
+        await db.collection("users").add({ ...newUser, userId: createdUserId });
+        history.push("/login");
+      }
     } catch (error) {
       alert(error.message);
     }
@@ -143,6 +128,9 @@ export const Signup: VFC = () => {
           >
             新規登録
           </Button>
+          <Typography>
+            <Link to="/login">ログインはこちらから</Link>
+          </Typography>
         </form>
       </div>
     </Container>
