@@ -1,20 +1,18 @@
-import React, { VFC } from "react";
+import React, { VFC, useContext } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Link, useHistory } from "react-router-dom";
 
 import { auth } from "../../firebase";
-import { SubmitHandler } from "react-hook-form";
-import { Link, useHistory } from "react-router-dom";
-import { InputFields } from "../../types/Signup";
+import { InputFields } from "../../types/Login";
 import { formStyles } from "../../styles/LoginAndSignup";
 import { loginSchema } from "../../validators/Login";
-import { useContext } from "react";
 import { SnackbarContext } from "../../providers/SnackbarProvider";
 
 export const Login: VFC = () => {

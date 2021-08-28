@@ -1,4 +1,4 @@
-import React, { VFC } from "react";
+import React, { VFC, useContext } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -13,7 +13,6 @@ import { auth, db } from "../../firebase";
 import { formStyles } from "../../styles/LoginAndSignup";
 import { signupSchema } from "../../validators/Signup";
 import { InputFields } from "../../types/Signup";
-import { useContext } from "react";
 import { SnackbarContext } from "../../providers/SnackbarProvider";
 
 export const Signup: VFC = () => {

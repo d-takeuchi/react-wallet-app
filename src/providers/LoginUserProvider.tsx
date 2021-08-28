@@ -13,6 +13,7 @@ type LoginUserContextType = {
   loginUser: LoginUser | null;
 };
 
+//ログインユーザー情報
 type LoginUser = {
   userName: string;
   wallet: number;
@@ -26,6 +27,7 @@ export const LoginUserProvider: VFC<{ children: ReactNode }> = ({
   const [loginUser, setLoginUser] = useState<LoginUser | null>(null);
 
   useEffect(() => {
+    //firestoreにもつユーザー情報の取得
     const getUserData = async (user: firebase.User | null) => {
       if (!user) return null;
 
