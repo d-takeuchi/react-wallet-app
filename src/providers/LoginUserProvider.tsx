@@ -8,15 +8,10 @@ import React, {
 import firebase from "firebase/app";
 
 import { auth, db } from "../firebase";
+import { LoginUser } from "../types/LoginUser";
 
 type LoginUserContextType = {
   loginUser: LoginUser | null;
-};
-
-//ログインユーザー情報
-type LoginUser = {
-  userName: string;
-  wallet: number;
 };
 
 export const LoginUserContext = createContext({} as LoginUserContextType);
@@ -28,19 +23,19 @@ export const LoginUserProvider: VFC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     //firestoreにもつユーザー情報の取得
-    const getUserData = async (user: firebase.User | null) => {
-      if (!user) return null;
-
+    const getUserData = async (user: firebase.User) => {
       const userDoc = await db.collection("users").doc(user.uid).get();
       const userData = userDoc.data() as LoginUser;
       return userData;
     };
 
     const unSub = auth.onAuthStateChanged(async (user) => {
-      const loginUser = await getUserData(user);
-      setLoginUser(loginUser);
+      if (user) {
+        const loginUser = await getUserData(user);
+        setLoginUser(loginUser);
+      }
     });
-    return unSub;
+    return () => unSub();
   }, []);
 
   return (
