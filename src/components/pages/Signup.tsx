@@ -1,4 +1,4 @@
-import React, { VFC } from "react";
+import React, { VFC, useContext } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -7,12 +7,13 @@ import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
-import { db } from "../../firebase";
+import { auth, db } from "../../firebase";
 import { formStyles } from "../../styles/LoginAndSignup";
 import { signupSchema } from "../../validators/Signup";
 import { InputFields } from "../../types/Signup";
+import { SnackbarContext } from "../../providers/SnackbarProvider";
 
 export const Signup: VFC = () => {
   const classes = formStyles();
@@ -25,15 +26,43 @@ export const Signup: VFC = () => {
     resolver: yupResolver(signupSchema),
   });
 
+  const { setSnackState } = useContext(SnackbarContext);
+
   //fireStoreへのユーザー新規登録処理
   const formSubmitHandler: SubmitHandler<InputFields> = async (
     newUser: InputFields
   ) => {
     try {
-      await db.collection("users").add(newUser);
-      history.push("/userList");
+      //まずは、Authenticationにユーザー登録
+      const result = await auth.createUserWithEmailAndPassword(
+        newUser.email,
+        newUser.password
+      );
+
+      //Authenticationに登録されたユーザーのUID（ユーザーID）を取得
+      const createdUser = result.user;
+      if (createdUser) {
+        const createdUserId = createdUser.uid;
+
+        //FirestoreにuidをドキュメントIDとして持ったユーザーを登録
+        await db
+          .collection("users")
+          .doc(createdUserId)
+          .set({ name: newUser.userName, wallet: 0 });
+
+        setSnackState({
+          isOpen: true,
+          type: "success",
+          message: "ユーザー作成に成功しました。",
+        });
+        history.push("/");
+      }
     } catch (error) {
-      alert(error.message);
+      setSnackState({
+        isOpen: true,
+        type: "error",
+        message: "ユーザー作成に失敗しました。",
+      });
     }
   };
 
@@ -110,6 +139,9 @@ export const Signup: VFC = () => {
           >
             新規登録
           </Button>
+          <Typography>
+            <Link to="/">ログインはこちらから</Link>
+          </Typography>
         </form>
       </div>
     </Container>

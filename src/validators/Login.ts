@@ -1,8 +1,7 @@
 import * as yup from "yup";
 
-//バリデーションの設定
-export const signupSchema = yup.object().shape({
-  userName: yup.string().required(),
+//ログインバリデーションの設定
+export const loginSchema = yup.object().shape({
   email: yup.string().email().required(),
   password: yup.string().min(6).max(20).required(),
 });
