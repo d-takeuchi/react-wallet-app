@@ -26,7 +26,8 @@ export const LoginUserProvider: VFC<{ children: ReactNode }> = ({
     const getUserData = async (user: firebase.User) => {
       const userDoc = await db.collection("users").doc(user.uid).get();
       const userData = userDoc.data() as LoginUser;
-      return userData;
+
+      return { ...userData, id: user.uid };
     };
 
     const unSub = auth.onAuthStateChanged(async (user) => {
