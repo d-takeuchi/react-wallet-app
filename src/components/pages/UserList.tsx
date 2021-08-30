@@ -2,13 +2,10 @@ import React, { VFC, useState, useEffect, useContext } from "react";
 import {
   Button,
   Container,
-  ListItemSecondaryAction,
-  ListItemText,
   AppBar,
   Toolbar,
   Typography,
   List,
-  ListItem,
 } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 
@@ -17,6 +14,7 @@ import { LoginUserContext } from "../../providers/LoginUserProvider";
 import { SnackbarContext } from "../../providers/SnackbarProvider";
 import { LoginUser } from "../../types/LoginUser";
 import { userListStyles } from "../../styles/UserList";
+import { UserItem } from "../molcules/UserItem";
 
 export const UserList: VFC = () => {
   //ユーザー一覧情報のstate
@@ -35,8 +33,9 @@ export const UserList: VFC = () => {
     const unSub = db.collection("users").onSnapshot((snapshot) => {
       setUsers(
         snapshot.docs.map((doc) => ({
-          name: doc.data().name,
-          wallet: doc.data().wallet,
+          id: doc.id,
+          name: doc.data().name as string,
+          wallet: doc.data().wallet as number,
         }))
       );
     });
@@ -77,27 +76,17 @@ export const UserList: VFC = () => {
       <Container>
         <h1>ユーザー一覧</h1>
         <List>
-          {users.map((user, index) => (
-            <ListItem key={index}>
-              <ListItemText>{user.name}</ListItemText>
-              <ListItemSecondaryAction>
-                <Button
-                  color="primary"
-                  variant="contained"
-                  className={classes.buttons}
-                >
-                  Walletを見る
-                </Button>
-                <Button
-                  color="primary"
-                  variant="contained"
-                  className={classes.buttons}
-                >
-                  送る
-                </Button>
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
+          {users.map(
+            (user, index) =>
+              user.id !== loginUser?.id && (
+                <UserItem
+                  name={user.name}
+                  wallet={user.wallet}
+                  key={index}
+                  id={user.id}
+                />
+              )
+          )}
         </List>
       </Container>
     </>
