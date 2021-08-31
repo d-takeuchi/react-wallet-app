@@ -4,14 +4,18 @@ import React, {
   useState,
   VFC,
   useEffect,
+  Dispatch,
+  SetStateAction,
 } from "react";
 import firebase from "firebase/app";
 
 import { auth, db } from "../firebase";
 import { LoginUser } from "../types/LoginUser";
 
+//ログインユーザーのcontext情報の型定義
 type LoginUserContextType = {
   loginUser: LoginUser | null;
+  setLoginUser: Dispatch<SetStateAction<LoginUser | null>>;
 };
 
 export const LoginUserContext = createContext({} as LoginUserContextType);
@@ -40,7 +44,7 @@ export const LoginUserProvider: VFC<{ children: ReactNode }> = ({
   }, []);
 
   return (
-    <LoginUserContext.Provider value={{ loginUser }}>
+    <LoginUserContext.Provider value={{ loginUser, setLoginUser }}>
       {children}
     </LoginUserContext.Provider>
   );

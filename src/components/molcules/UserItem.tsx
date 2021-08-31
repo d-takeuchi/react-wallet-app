@@ -5,9 +5,10 @@ import {
   ListItemText,
   ListItem,
 } from "@material-ui/core";
-import { UserWalletDialog } from "./UserWalletDialog";
 
+import { UserWalletDialog } from "./UserWalletDialog";
 import { userListStyles } from "../../styles/UserList";
+import { GiftingWalletDialog } from "./GiftingWalletDialog";
 
 type Props = {
   id: string;
@@ -16,7 +17,12 @@ type Props = {
 };
 
 export const UserItem: VFC<Props> = memo(({ id, name, wallet }) => {
-  const [open, setOpen] = useState(false);
+  //ウォレット送信用ダイアログのstate
+  const [isOpenGiftingWalletDialog, setIsOpenGiftingWalletDialog] =
+    useState(false);
+
+  //ウォレット確認ダイアログのstate
+  const [isOpenWalletDialog, setIsOpenWalletDialog] = useState(false);
   const classes = userListStyles();
 
   return (
@@ -27,21 +33,36 @@ export const UserItem: VFC<Props> = memo(({ id, name, wallet }) => {
           color="primary"
           variant="contained"
           onClick={() => {
-            setOpen(true);
+            setIsOpenWalletDialog(true);
           }}
           className={classes.buttons}
         >
           Walletを見る
         </Button>
-        <Button color="primary" variant="contained" className={classes.buttons}>
+        <Button
+          color="primary"
+          variant="contained"
+          className={classes.buttons}
+          onClick={() => {
+            setIsOpenGiftingWalletDialog(true);
+          }}
+        >
           送る
         </Button>
         <UserWalletDialog
-          open={open}
+          isOpen={isOpenWalletDialog}
           onClose={() => {
-            setOpen(false);
+            setIsOpenWalletDialog(false);
           }}
           userName={name}
+          wallet={wallet}
+        />
+        <GiftingWalletDialog
+          isOpen={isOpenGiftingWalletDialog}
+          onClose={() => {
+            setIsOpenGiftingWalletDialog(false);
+          }}
+          id={id}
           wallet={wallet}
         />
       </ListItemSecondaryAction>
