@@ -56,13 +56,13 @@ export const GiftingWalletDialog: VFC<Props> = memo((props) => {
       //ウォレットの送付対象ユーザー
       const targetUserWallet = wallet;
 
-      //選択したユーザーのウォレット情報を更新
+      //送付対象ユーザーのウォレット情報を更新
       await db
         .collection("users")
         .doc(id)
         .set({ wallet: targetUserWallet + giftWallet }, { merge: true });
 
-      //ログインしているユーザーのウォレット情報を更新
+      //ログインユーザーのウォレット情報を更新
       const loginUserWallet = loginUser!.wallet - giftWallet;
 
       await db
