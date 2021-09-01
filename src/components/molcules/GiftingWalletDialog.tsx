@@ -23,7 +23,7 @@ type Props = {
 };
 
 export const GiftingWalletDialog: VFC<Props> = memo((props) => {
-  const { isOpen, onClose, id, wallet } = props;
+  const { isOpen, onClose, id } = props;
 
   const { loginUser, setLoginUser } = useContext(LoginUserContext);
 
@@ -42,51 +42,57 @@ export const GiftingWalletDialog: VFC<Props> = memo((props) => {
 
   const { setSnackState } = useContext(SnackbarContext);
 
+  //ウォレット送信処理
   const giftingWallet: SubmitHandler<InputFields> = async (
     data: InputFields
   ) => {
     const { giftWallet } = data;
 
     try {
-      //送る金額に対してウォレットが不足していた場合はエラー
       if (loginUser!.wallet < giftWallet) {
         throw new Error("ウォレットが不足しています。");
       }
 
-      //ウォレットの送付対象ユーザー
-      const targetUserWallet = wallet;
+      //ログインユーザーのドキュメント
+      const loginUserDocRef = db.collection("users").doc(loginUser!.id);
+      //送付対象ユーザーのドキュメント
+      const targetUserDocRef = db.collection("users").doc(id);
 
-      //送付対象ユーザーのウォレット情報を更新
-      await db
-        .collection("users")
-        .doc(id)
-        .set({ wallet: targetUserWallet + giftWallet }, { merge: true });
+      //ウォレットの更新処理
+      await db.runTransaction(async (transaction) => {
+        const [loginUserDoc, targetUserDoc] = await Promise.all([
+          transaction.get(loginUserDocRef),
+          transaction.get(targetUserDocRef),
+        ]);
 
-      //ログインユーザーのウォレット情報を更新
-      const loginUserWallet = loginUser!.wallet - giftWallet;
+        let loginUserWallet = loginUserDoc.get("wallet");
+        const targetUserWallet = targetUserDoc.get("wallet");
+        //送る金額に対してウォレットが不足していた場合はエラー
 
-      await db
-        .collection("users")
-        .doc(loginUser!.id)
-        .set({ wallet: loginUserWallet }, { merge: true });
+        // 送付対象ユーザーのウォレット情報を更新;
+        transaction.update(targetUserDocRef, {
+          wallet: targetUserWallet + giftWallet,
+        });
 
-      setLoginUser({ ...loginUser!, wallet: loginUserWallet });
+        //ログインユーザーのウォレット情報を更新
+        loginUserWallet = loginUserWallet - giftWallet;
 
-      setSnackState({
-        isOpen: true,
-        message: "ウォレットを送りました",
-        type: "success",
+        transaction.update(loginUserDocRef, {
+          wallet: loginUserWallet,
+        });
+
+        setLoginUser({ ...loginUser!, wallet: loginUserWallet });
       });
     } catch (error) {
       setSnackState({
         isOpen: true,
-        message: `${error.message}`,
+        message: `エラー内容：${error.message}`,
         type: "error",
       });
     } finally {
       reset();
+      handleClose();
     }
-    handleClose();
   };
 
   return (
